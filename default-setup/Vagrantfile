@@ -32,8 +32,6 @@ Vagrant.configure("2") do |config|
     lv.storage :file,
       size: DISK_SIZE,
       type: "qcow2"
-
-    lv.nested = true if lv.respond_to?(:nested=)
   end
 
   # --------------------------------
