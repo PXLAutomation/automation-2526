@@ -13,12 +13,12 @@ hosts
 
 
 # Vagrant
-.vagrant/           # Vagrant working directory
-*.box               # Vagrant box files
-*.vbox              # VirtualBox VM config
-*.vbox-prev         # VirtualBox previous config
-*.backup            # Vagrant backup files
-*.vmdk              # Virtual machine disk files
+.vagrant/
+*.box
+*.vbox
+*.vbox-prev
+*.backup
+*.vmdk
 
 # Log files
 *.log
