@@ -19,7 +19,7 @@ This repository provides an automated environment for PXL Labs using Vagrant, Li
 **Clone the repository:**
 
  ```sh
- gh clone https://github.com/PXLAutomation/automation-2526.git
+ git clone https://github.com/PXLAutomation/automation-2526.git
  cd automation-2526/default-setup
  ```
 
