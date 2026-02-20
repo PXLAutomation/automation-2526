@@ -1,32 +1,58 @@
 #
-# Vagrantfile to create PXL Labs
+# Vagrantfile to create PXL Labs (libvirt + AlmaLinux)
 #
-# -*- mode: ruby -*-
-# vi: set ft=ruby :
+# AlmaLinux official boxes with libvirt support are published in the AlmaLinux
+# Vagrant registry (Libvirt provider). :contentReference[oaicite:2]{index=2}
 
 Vagrant.configure("2") do |config|
 
-  config.vm.box = "generic/rocky9"
-  GROUP = "/pxl-lab"
-  MEMORY = 2048
+  # ----- Base Box -----
+  # Use AlmaLinux 9 for latest stable package sets.
+  # Official libvirt build available, ensure libvirt provider is used.
+  config.vm.box = "almalinux/9"
+  config.vm.box_version = ">= 9.5.20241203"  # accept newer patch releases
 
-  # set host sync folder /vagrant to current directory
+  MEMORY = 2048
+  CPUS   = 2
+  DISK_SIZE = "40G"   # qcow2 virtual disk size
+
+  # Disable default /vagrant sync folder
   config.vm.synced_folder '.', '/vagrant', disabled: true
 
-  # ssh key config - re-use existing key
+  # SSH config - reuse existing insecure key
   config.ssh.forward_agent = true
   config.ssh.insert_key = false
   config.ssh.private_key_path = "~/.vagrant.d/insecure_private_key"
 
-  # make a virtualbox group
-  config.vm.provider :virtualbox do |vb|
-    vb.memory = MEMORY
-    vb.customize ["modifyvm", :id, "--groups", GROUP] unless GROUP.nil?
+  # --------------------------------
+  # Libvirt Provider Configuration
+  # --------------------------------
+  config.vm.provider :libvirt do |lv|
+    # Memory and CPU
+    lv.memory = MEMORY
+    lv.cpus   = CPUS
+
+    # Use KVM if available
+    lv.driver = "kvm"
+
+    # Disk size tuning (qcow2)
+    # This tells libvirt how big to make the VM disk.
+    # qcow2 is thin-provisioned; it will only use actual space as needed.
+    lv.storage :file,
+      size: DISK_SIZE,
+      type: "qcow2"
+
+    # Optional: enable nested virtualization if host supports it
+    lv.nested = true if lv.respond_to?(:nested=)
+
+    # Default NAT network is fine; can be overridden if needed
   end
 
-  # configure vagrant-hosts so all the /etc/hosts files are updated
-  # on all provisioned machines with the names and ips of all the provisioned hosts
+  # --------------------------------
+  # vagrant-hosts plugin integration
+  # --------------------------------
   config.vagrant.plugins = "vagrant-hosts"
+
   if Vagrant.has_plugin?("vagrant-hosts")
     config.vm.provision :hosts do |provisioner|
       provisioner.add_localhost_hostnames = false
@@ -35,16 +61,29 @@ Vagrant.configure("2") do |config|
     end
   end
 
+  # -------------------------
+  # Web Server
+  # -------------------------
   config.vm.define "webserver1" do |server|
     server.vm.hostname = "webserver1.pxldemo.local"
-    # port forward
-    server.vm.network "forwarded_port", guest: 8080, host: 8080
-    server.vm.network "private_network", ip: "192.168.56.100"
+
+    # Forward port for HTTP
+    server.vm.network "forwarded_port",
+      guest: 8080, host: 8080
+
+    # Private network for internal communication
+    server.vm.network "private_network",
+      ip: "192.168.121.100"
   end
 
+  # -------------------------
+  # DB Server
+  # -------------------------
   config.vm.define "dbserver1" do |server|
     server.vm.hostname = "dbserver1.pxldemo.local"
-    server.vm.network "private_network", ip: "192.168.56.101"
+
+    server.vm.network "private_network",
+      ip: "192.168.121.101"
   end
 
   config.vm.post_up_message = "PXL Lab build complete."
