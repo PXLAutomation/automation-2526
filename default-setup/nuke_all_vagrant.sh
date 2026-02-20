@@ -25,7 +25,7 @@ SCRIPT_NAME="$(basename "$0")"
 
 FORCE=false
 QUIET=false
-LIBVIRT_URI=""
+LIBVIRT_URI="qemu:///system"
 POOL_NAME="default"
 LOCKDIR="${TMPDIR:-/tmp}/${SCRIPT_NAME}.lockdir"
 
@@ -128,9 +128,7 @@ PROJECT_PREFIX="${PROJECT_NAME}_"
 log "Project directory: $(pwd)"
 log "Project prefix:    ${PROJECT_PREFIX}"
 log "Libvirt pool:      ${POOL_NAME}"
-if [[ -n "$LIBVIRT_URI" ]]; then
-  log "Libvirt URI:       ${LIBVIRT_URI}"
-fi
+log "Libvirt URI:       ${LIBVIRT_URI}"
 if [[ "$FORCE" == false ]]; then
   log "Mode:              DRY RUN (use --force to delete)"
 else
