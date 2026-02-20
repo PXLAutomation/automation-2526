@@ -1,25 +1,21 @@
 #
 # Vagrantfile to create PXL Labs (libvirt + AlmaLinux)
 #
-# AlmaLinux official boxes with libvirt support are published in the AlmaLinux
-# Vagrant registry (Libvirt provider). :contentReference[oaicite:2]{index=2}
 
 Vagrant.configure("2") do |config|
 
-  # ----- Base Box -----
-  # Use AlmaLinux 9 for latest stable package sets.
-  # Official libvirt build available, ensure libvirt provider is used.
-  config.vm.box = "almalinux/9"
-  config.vm.box_version = ">= 9.5.20241203"  # accept newer patch releases
+  # ----- Base Box (hard pinned) -----
+  config.vm.box = "generic/alma9"
+  config.vm.box_version = "4.3.12"
 
-  MEMORY = 2048
-  CPUS   = 2
-  DISK_SIZE = "40G"   # qcow2 virtual disk size
+  MEMORY    = 2048
+  CPUS      = 2
+  DISK_SIZE = "40G"
 
   # Disable default /vagrant sync folder
-  config.vm.synced_folder '.', '/vagrant', disabled: true
+  config.vm.synced_folder ".", "/vagrant", disabled: true
 
-  # SSH config - reuse existing insecure key
+  # SSH config - reuse insecure key
   config.ssh.forward_agent = true
   config.ssh.insert_key = false
   config.ssh.private_key_path = "~/.vagrant.d/insecure_private_key"
@@ -28,24 +24,16 @@ Vagrant.configure("2") do |config|
   # Libvirt Provider Configuration
   # --------------------------------
   config.vm.provider :libvirt do |lv|
-    # Memory and CPU
     lv.memory = MEMORY
     lv.cpus   = CPUS
-
-    # Use KVM if available
     lv.driver = "kvm"
 
-    # Disk size tuning (qcow2)
-    # This tells libvirt how big to make the VM disk.
-    # qcow2 is thin-provisioned; it will only use actual space as needed.
+    # Explicit qcow2 disk size tuning
     lv.storage :file,
       size: DISK_SIZE,
       type: "qcow2"
 
-    # Optional: enable nested virtualization if host supports it
     lv.nested = true if lv.respond_to?(:nested=)
-
-    # Default NAT network is fine; can be overridden if needed
   end
 
   # --------------------------------
@@ -67,11 +55,9 @@ Vagrant.configure("2") do |config|
   config.vm.define "webserver1" do |server|
     server.vm.hostname = "webserver1.pxldemo.local"
 
-    # Forward port for HTTP
     server.vm.network "forwarded_port",
       guest: 8080, host: 8080
 
-    # Private network for internal communication
     server.vm.network "private_network",
       ip: "192.168.121.100"
   end
