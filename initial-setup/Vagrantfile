@@ -4,8 +4,7 @@
 
 # --------------------------------
 # Update host /etc/hosts (once, on first vagrant up)
-# Runs in the main Vagrant process which has the user's TTY,
-# so sudo can prompt for a password normally.
+# Runs in the main Vagrant process which has the user's TTY
 # --------------------------------
 if ARGV[0] == 'up' && !File.read('/etc/hosts').include?('PXL_LAB_BEGIN')
   system(<<~SHELL)
