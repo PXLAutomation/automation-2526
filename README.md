@@ -16,12 +16,16 @@ cd automation-labs
 
 ### Initial Set-up
 
+Use this set-up for the initial lessons
+
 ```sh
 cd initial-setup
 vagrant up
 ```
 
 ### Default set-up
+
+Use this set-up for most exercises.
 
 ```sh
 cd default-setup
