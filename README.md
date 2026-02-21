@@ -4,7 +4,7 @@
 
 Automated lab environment for PXL Labs. Spins up two AlmaLinux 9 VMs using Vagrant + Libvirt/KVM, with Ansible for configuration management. This repository contains:
 
-- **initial-setup**: For starting the labs
+- **initial-setup**: For starting the course
 - **default-setup**: The primary setup for many exercises.
 
 ## Quick Start
@@ -85,6 +85,7 @@ VM-to-VM traffic (e.g. webserver1 -> dbserver1) travels over eth1 via the static
 
 ```sh
 vagrant ssh webserver1
+vagrant ssh webserver2
 vagrant ssh dbserver1
 ```
 
